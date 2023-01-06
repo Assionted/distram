@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="im.anchor.mapper.EmployeeMapper">
+  <insert id="insert">
+    INSERT ignore INTO
+      t_emp (emp_id, emp_name, emp_salary, emp_address)
+    VALUES
+      (#{emp_id}, #{emp_name}, #{emp_salary}, #{emp_address})
+  </insert>
+  
+  <update id="updateByPrimaryKey">
+    UPDATE
+      t_emp
+    SET
+      emp_name = #{emp_name}, emp_salary = #{emp_salary}, emp_address = #{emp_address})
+    WHERE
+      emp_id = #{emp_id}
+  </update>
+  
+  <delete id="deleteByPrimaryKey">
+    DELETE FROM
+      t_emp
+    WHERE
+      emp_id = #{id}
+  </delete>
+  
+  <select id="selectByPrimaryKey" resultType="Employee" parameterType="int">
+    SELECT * FROM t_emp WHERE emp_id = #{id}
+  </select>
+  
+  <select id="selectAllEmployee" resultType="Employee">
+    SELECT emp_id, emp_name, emp_salary, emp_address FROM t_emp
+  </select>
+</mapper>

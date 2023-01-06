@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       https://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/tx
+       http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!-- ================一、连接数据库================ -->
+    <!--1、引入外部资源文件-->
+    <context:property-placeholder location="classpath:config/jdbc.properties"/>
+
+    <!--2、配置数据源-->
+    <bean class="com.alibaba.druid.pool.DruidDataSource" id="dataSource">
+        <property name="driverClassName" value="${jdbc.driver}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}"/>
+        <property name="password" value="${jdbc.password}"/>
+    </bean>
+
+    <!-- ===================二、整合Mybatis==================== -->
+    <!-- 1.配置SqlSessionFactory -->
+    <bean class="org.mybatis.spring.SqlSessionFactoryBean" id="sqlSessionFactory">
+
+        <!-- 装配数据源 -->
+        <property name="dataSource" ref="dataSource" />
+
+        <!-- 配置Mybatis全局配置的两个方案只能二选一 -->
+        <!-- (1)、配置Mybatis全局配置方案一：还是在Mybatis自己的配置文件中配，在Spring中指定配置文件位置 -->
+        <!-- Mybatis全局配置文件的位置使用configLocation指定 <property name="configLocation" value=""/> -->
+        <!-- (2)、配置Mybatis全局配置方案二（推荐）：在Spring配置文件配置 -->
+        <!-- 在Spring中执行Mybatis全局配置 -->
+        <property name="configuration">
+            <bean class="org.apache.ibatis.session.Configuration">
+                <property name="mapUnderscoreToCamelCase" value="true" /><!--驼峰原则-->
+                <property name="logImpl" value="org.apache.ibatis.logging.stdout.StdOutImpl" /><!--打印SQL-->
+            </bean>
+        </property>
+        <!-- 配置别名，使用包扫描-->
+        <property name="typeAliasesPackage" value="im.anchor.entity" />
+        <!-- 指定Mapper配置文件的位置XxxMapper.xml -->
+        <property name="mapperLocations" value="classpath:mapper/*Mapper.xml" />
+    </bean>
+
+    <!-- 2.对Mapper接口所在的包进行扫描 -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer" id="mapperScannerConfigurer">
+        <!-- 指定Mybatis中存放Mapper接口的包 -->
+        <property name="basePackage" value="im.anchor.mapper" />
+        <!-- 可选，如果不写，Spring启动时候。容器中自动会按照类型去把SqlSessionFactory对象注入进来 -->
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
+    </bean>
+
+    <!-- ===================三、配置声明式事务==================== -->
+    <!-- 1.配置事务管理器的bean -->
+    <bean class="org.springframework.jdbc.datasource.DataSourceTransactionManager" id="transactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <!-- 2.开启基于注解的声明式事务 -->
+    <tx:annotation-driven transaction-manager="transactionManager" />
+    <!-- 3.配置自动扫描的包 -->
+    <context:component-scan base-package="im.anchor.service" />
+</beans>
