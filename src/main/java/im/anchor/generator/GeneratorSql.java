@@ -20,15 +20,10 @@ public class GeneratorSql {
         String file = GeneratorSql.class.getResource("/config/generatorConfig.xml").getFile();
         System.out.println("file: " + file);
         File configFile = new File(file);
-        System.out.println("configFile: " + configFile);
         ConfigurationParser cp = new ConfigurationParser(warnings);
-        System.out.println("cp: " + cp);
         Configuration config = cp.parseConfiguration(configFile);
-        System.out.println("config: " + config);
         DefaultShellCallback callback = new DefaultShellCallback(overwrite);
-        System.out.println("callback: " + callback);
         MyBatisGenerator myBatisGenerator = new MyBatisGenerator(config, callback, warnings);
-        System.out.println("myBatisGenerator: " + myBatisGenerator);
         myBatisGenerator.generate(null);
     }
 }
