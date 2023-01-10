@@ -11,23 +11,39 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import im.anchor.dto.Result;
 import im.anchor.entity.Employee;
 import im.anchor.service.EmployeeService;
 
 @RestController
-public class EmployeeController {
+public class EmployeeController<T> {
 
     @Autowired
     private EmployeeService employeeService;
+    
+    private Result<T> result = new Result<T>();
 
     /**
      * 查询所有员工信息
+     * @param <T>
      * @return
      */
-    @GetMapping("/emp")
-    public List<Employee> findAll(){
-        List<Employee> list = employeeService.findAll();
-        return list;
+    @SuppressWarnings("unchecked")
+	@GetMapping("/emp")
+    public Result<T> findAll(){
+        List<Employee> list = null;
+    	try {
+    		list = employeeService.findAll();
+    		result.setCode(200);
+    		result.setMessage("请求成功");
+		} catch (Exception e) {
+			result.setCode(500);
+    		result.setMessage("请求失败");
+		} finally {
+			result.setData((T) list);
+		}
+        
+        return result;
     }
 
     /**
